@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Moving Box with Tailwind</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+</head>
+
+<body class="bg-gray-200 h-screen w-screen flex justify-center items-center">
+    <div class="flex gap-8 h-auto">
+        <button id="moveButton" class="w-96 h-auto p-2 bg-blue-200 rounded-full">
+            <div id="movingBox"
+                class=" rounded-full w-40 h-40 bg-blue-500 transition-transform duration-500 transform translate-x-0">
+            </div>
+        </button>
+        <p id="text" class="text-8xl w-52 flex items-center font-bold h-auto">ON</p>
+    </div>
+
+    <script defer src="https://www.gstatic.com/firebasejs/9.0.2/firebase-app-compat.js"></script>
+    <script defer src="https://www.gstatic.com/firebasejs/9.0.2/firebase-database-compat.js"></script>
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-analytics.js";
+        // TODO: Add SDKs for Firebase products that you want to use
+        // https://firebase.google.com/docs/web/setup#available-libraries
+
+        // Your web app's Firebase configuration
+        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+        const firebaseConfig = {
+            apiKey: "AIzaSyA_XxgCEkIFzlDjwtcODaReKLHe0NyUDMA",
+            authDomain: "alarm-aa303.firebaseapp.com",
+            databaseURL: "https://alarm-aa303-default-rtdb.firebaseio.com",
+            projectId: "alarm-aa303",
+            storageBucket: "alarm-aa303.appspot.com",
+            messagingSenderId: "810410065664",
+            appId: "1:810410065664:web:f3e7cf6d11ecb4653efde5",
+            measurementId: "G-102JB898VK"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const movingBox = document.getElementById('movingBox');
+            const moveButton = document.getElementById('moveButton');
+            let changeText = document.getElementById('text');
+            let isMoved = false;
+            let buzzer = 0;
+
+            const database = firebase.database();
+            const buzzerRef = database.ref('buzzer');
+
+            if (isMoved) {
+                movingBox.classList.remove('translate-x-52');
+                movingBox.classList.remove('bg-red-500');
+                movingBox.classList.add('bg-blue-500');
+                moveButton.classList.add('bg-blue-200');
+                moveButton.classList.remove('bg-red-200');
+                changeText.innerText = 'ON';
+                buzzer = 1;
+            } else {
+                movingBox.classList.add('translate-x-52');
+                movingBox.classList.add('bg-red-500');
+                movingBox.classList.remove('bg-blue-500');
+                changeText.innerText = 'OFF ';
+                moveButton.classList.remove('bg-blue-200');
+                moveButton.classList.add('bg-red-200');
+                buzzer = 0;
+            }
+
+            moveButton.addEventListener('click', function () {
+                if (isMoved) {
+                    movingBox.classList.remove('translate-x-52');
+                    movingBox.classList.remove('bg-red-500');
+                    movingBox.classList.add('bg-blue-500');
+                    moveButton.classList.add('bg-blue-200');
+                    moveButton.classList.remove('bg-red-200');
+                    changeText.innerText = 'ON';
+                    buzzer = 1;
+                } else {
+                    movingBox.classList.add('translate-x-52');
+                    movingBox.classList.add('bg-red-500');
+                    movingBox.classList.remove('bg-blue-500');
+                    changeText.innerText = 'OFF ';
+                    moveButton.classList.remove('bg-blue-200');
+                    moveButton.classList.add('bg-red-200');
+                    buzzer = 0;
+                }
+
+                isMoved = !isMoved;
+                updateFirebaseDatabase(buzzer);
+            });
+
+            function updateFirebaseDatabase(buzzerValue) {
+
+
+                buzzerRef.set(buzzerValue)
+                    .then(() => {
+                        console.log('Buzzer value updated successfully in the database:', buzzerValue);
+                    })
+                    .catch((error) => {
+                        console.error('Error updating buzzer value:', error);
+                    });
+            }
+        });
+    </script>
+</body>
+
+</html>
